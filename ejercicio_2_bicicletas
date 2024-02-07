@@ -1,0 +1,122 @@
+#EJERCICIO 2 BICICLETAS
+
+#Creación de la tabla
+CREATE TABLE rides (
+    ride_id VARCHAR,
+    rideable_type VARCHAR,
+    started_at TIMESTAMP,
+    ended_at TIMESTAMP,
+    start_station_name VARCHAR,
+    start_station_id VARCHAR,
+    end_station_name VARCHAR,
+    end_station_id VARCHAR,
+    member_casual VARCHAR,
+    ride_duration INT,
+    day_of_week INT
+);
+
+
+#Crear tabla para bicicletas classic_bike
+CREATE TABLE classic_bike AS
+SELECT
+    ride_id,
+    rideable_type,
+    started_at,
+    ended_at,
+    start_station_name,
+    start_station_id,
+    end_station_name,
+    end_station_id,
+    member_casual,
+    ride_duration,
+    day_of_week
+FROM rides
+WHERE rideable_type = 'classic_bike';
+
+#Crear tabla para bicicletas electric_bike
+CREATE TABLE electric_bike AS
+SELECT
+    ride_id,
+    rideable_type,
+    started_at,
+    ended_at,
+    start_station_name,
+    start_station_id,
+    end_station_name,
+    end_station_id,
+    member_casual,
+    ride_duration,
+    day_of_week
+FROM rides
+WHERE rideable_type = 'electric_bike';
+
+#Crear tabla para bicicletas docked_bike
+CREATE TABLE docked_bike AS
+SELECT
+    ride_id,
+    rideable_type,
+    started_at,
+    ended_at,
+    start_station_name,
+    start_station_id,
+    end_station_name,
+    end_station_id,
+    member_casual,
+    ride_duration,
+    day_of_week
+FROM rides
+WHERE rideable_type = 'docked_bike';
+
+
+CAMBIAR LOS VALORES SEMANALES POR NOMBRES DE DIAS DE LA SEMANA
+
+#Cambiar el tipo de la columna day_of_week a varchar en la tabla rides
+ALTER TABLE rides
+ALTER COLUMN day_of_week TYPE VARCHAR;
+
+#Actualizar la columna day_of_week con nombres de días de la semana
+UPDATE rides
+SET day_of_week =
+    CASE day_of_week
+        WHEN '1' THEN 'Monday'
+        WHEN '2' THEN 'Tuesday'
+        WHEN '3' THEN 'Wednesday'
+        WHEN '4' THEN 'Thursday'
+        WHEN '5' THEN 'Friday'
+        WHEN '6' THEN 'Saturday'
+        WHEN '7' THEN 'Sunday'
+    END;
+
+TIEMPO DE CADA VIAJE
+
+SELECT ended_at - started_at  AS diferencia_tiempo, ride_id
+FROM rides;
+
+CREAR UNA COLUMNA SIMILAR A ride_duration POR EL CALCULO MANUAL DE EL TIEMPO DE LOS VIAJES DERIVADO
+DEL MOMENTO DE INICIO Y FINALIZACIÓN DE LOS RECORRIDOS.
+
+ALTER TABLE rides
+ADD COLUMN diferencia_tiempo INTERVAL;
+UPDATE rides
+SET diferencia_tiempo = ended_at - started_at;
+
+Y BORRAMOS ride_duration
+
+ALTER TABLE rides
+DROP COLUMN ride_duration;
+
+#OBSERVEMOS EL TIEMPO PROMEDIO DE VIAJES POR CLASE DE BICICLETA
+
+SELECT AVG(diferencia_tiempo), rideable_type
+FROM rides
+GROUP BY 2
+ORDER BY 1 ASC
+
+
+#OBSERVEMOS CUALES DIAS SE EMPLEAN EN MAYOR MEDIDA LAS BICICLETAS
+
+SELECT day_of_week, COUNT(ride_id)
+FROM rides
+GROUP BY 1
+ORDER BY 2 DESC
+
